@@ -6,6 +6,8 @@
 using namespace std;
 using namespace cv;
 
+  //g++ -Wall %f -o %n `pkg-config --cflags --libs opencv`
+  
 int main(int argc, char const *argv[]) {
   Mat img;
   int i, j;
