@@ -7,6 +7,7 @@
 int main() {
 
   VideoCapture cap(0);
+  int x = 0, y = 0;
   if(!cap.isOpened()){
     return -1;
   }
@@ -17,7 +18,9 @@ int main() {
   for(;;){
       cap >> frames;
       flip(frames, frames, 1);
-      img.copyTo(frames(Rect(50, 200, img.cols, img.rows)));
+      img.copyTo(frames(Rect(x, y, img.cols, img.rows)));
+      //  y++;
+       x++;
       imshow("frames", frames);
 
       if(waitKey(30) >= 0){
