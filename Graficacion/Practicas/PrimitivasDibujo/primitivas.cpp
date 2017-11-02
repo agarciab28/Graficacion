@@ -17,7 +17,7 @@ int main(int argc, char const *argv[]) {
   // line(img, Point(30,10), Point(30, 350), Scalar(100, 230, 135), 10);
   // circle(img, Point(200,200), 200, Scalar(0,200,0), -1);
   //fillPoly(img, )
-  for (int i = 0; i < 200; i++) {
+  for (; ; ) {
     ellipse(img, Point(x, y), Size(100, 200), 90 + sumAngulo, 0, 360, Scalar(0, 255, 0), 2, 8);
     ellipse(img, Point(x, y), Size(100, 200), 180 + sumAngulo, 0, 360, Scalar(0, 255, 0), 2, 8);
     ellipse(img, Point(x, y), Size(100, 200), 55 + sumAngulo, 0, 360, Scalar(0, 255, 0), 2, 8);
