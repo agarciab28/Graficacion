@@ -45,7 +45,13 @@ int main(int argc, char const *argv[]) {
 		  aux = aux + conv[1][2] * img3.at<uchar>(i, j - 1);
 		  aux = aux + conv[2][2] * img3.at<uchar>(i + 1, j - 1);
 
-		  img4.at<uchar>(i - 1, j - 1) = aux;
+      // if(aux >= 255){
+      //   aux = 255;
+      // }
+
+      if(img4.at<uchar>(i - 1, j - 1) <= 255){
+        img4.at<uchar>(i - 1, j - 1) = aux;
+      }
     }
   }
 
