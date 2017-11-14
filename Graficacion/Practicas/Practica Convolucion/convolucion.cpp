@@ -16,7 +16,7 @@ int main(int argc, char const *argv[]) {
 
   Mat img2(img.rows * 2, img.cols * 2, CV_8UC1, Scalar(250)); //Lienzo de imagen con escalamiento
   Mat img3(img2.rows + 2, img2.cols + 2, CV_8UC1, Scalar(250)); //Lienzo de imagen aplicando matriz de convolucion
-  Mat img4(img.rows * 2, img.cols * 2, CV_8UC1, Scalar(250));
+  Mat img4(img.rows * 2, img.cols * 2, CV_8UC1, Scalar(0));
 
   //Ciclo de escalamiento
   for(i = 0; i < img.rows; i++){
@@ -45,9 +45,9 @@ int main(int argc, char const *argv[]) {
 		  aux = aux + conv[1][2] * img3.at<uchar>(i, j - 1);
 		  aux = aux + conv[2][2] * img3.at<uchar>(i + 1, j - 1);
 
-      // if(aux >= 255){
-      //   aux = 255;
-      // }
+      if(aux >= 255){
+        aux = 255;
+      }
 
       if(img4.at<uchar>(i - 1, j - 1) <= 255){
         img4.at<uchar>(i - 1, j - 1) = aux;

@@ -37,7 +37,7 @@ int main(int argc, char const *argv[]) {
     }
     else{
       if(t1 >= -1.2 ){
-        t2 = 4.3;
+        t2 = 4.1;
         t1 = t1 - 0.1;
         circle(img, Point(x1, y1), 20, Scalar(244, 13, 89), -1, 8, 0);
       }
@@ -46,7 +46,7 @@ int main(int argc, char const *argv[]) {
         circle(img, Point(x2, y2), 20, Scalar(244, 13, 89), -1, 8, 0);
       }
       else if(t2 < 2){
-        t1 = 1.1;
+        t1 = 1;
         c++;
       }
     }
