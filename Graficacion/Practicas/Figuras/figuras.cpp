@@ -31,6 +31,7 @@ int main(int argc, char const *argv[]) {
   return 0;
 }
 
+//Metodo para dibujar una cardioide
 void corazon(){
   Mat img(500, 500, CV_8UC3, Scalar(0, 0, 0));
   float x, y, t = 0;
@@ -48,16 +49,17 @@ void corazon(){
     imshow("Corazon", img);
 
     // x1 = x1 + 0.1;
-    t = t + 0.03;
+    t = t + 0.01;
 
     //cout << "g = " << g << " f = "<<  f << endl;
 
-    if(waitKey(30) >= 0){
+    if(waitKey(15) >= 0){
       break;
     }
   }
 }
 
+//Metodo para dibujar un infinito
 void infinito(){
   Mat img(500, 500, CV_8UC3, Scalar(0, 0, 0));
   float t = 0, x, y;
@@ -69,14 +71,15 @@ void infinito(){
 
     imshow("Elipse", img);
 
-    t = t + 1;
+    t = t + 0.01;
 
-    if(waitKey(30) >= 0){
+    if(waitKey(15) >= 0){
       break;
     }
   }
 }
 
+//Metodo para dibujar una flor
 void flor(){
   Mat img(500, 500, CV_8UC3, Scalar(0, 0, 0));
   float t = 0, x, y;
@@ -88,9 +91,9 @@ void flor(){
 
     imshow("Elipse", img);
 
-    t = t + 0.03;
+    t = t + 0.01;
 
-    if(waitKey(30) >= 0){
+    if(waitKey(15) >= 0){
       break;
     }
   }
