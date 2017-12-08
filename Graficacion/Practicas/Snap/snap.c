@@ -20,7 +20,7 @@ Mat d_rostro(Mat src);
 Mat p_mascara(Mat src,Point center,Size face_size);
 
 double minrsize=30;
-double maxrsize=300;
+double maxrsize=1000;
 
 
 int main( ){
@@ -39,6 +39,7 @@ int main( ){
    for(;;){
         Mat frames;
         cap >> frames;
+        flip(frames, frames, 1);
 
         frames = d_rostro(frames);
 
@@ -69,7 +70,8 @@ Mat d_rostro(Mat imagen){
         //Punto central de la deteccion
         Point center( caras[i].x + caras[i].width*0.5, caras[i].y + caras[i].height*0.4 );
         //Detecta y pone mascara
-        imagen = p_mascara(imagen, center, Size( caras[i].width, caras[i].height));
+        imagen = p_mascara(imagen, center, Size( caras[i].width + 60, caras[i].height + 60));
+        cout << caras[i].width << " " << caras[i].height << endl;
     }
     return imagen;
 }

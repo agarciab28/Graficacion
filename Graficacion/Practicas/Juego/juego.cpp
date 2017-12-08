@@ -14,11 +14,13 @@
 using namespace cv;
 using namespace std;
 
-Mat img;
 Mat corazon;
+Mat cflow;
 int vidas = 3;
 int score = 0;
 string scoreText;
+float ycirculo = 200;
+float xcirculo = 200;
 
 class Proyectil{
 public:
@@ -42,7 +44,7 @@ Proyectil::Proyectil(int _x, int _y){
 
 void Proyectil::mostrar(){
 	// Mat ma(x * 3, x * 3, CV_8UC1, Scalar(255));
-	circle(img, Point(x, y), size, Scalar(238, 6, 94), -1);
+	circle(cflow, Point(x, y), size, Scalar(238, 6, 94), -1);
 }
 
 void Proyectil::avanzar(){
@@ -80,12 +82,12 @@ list<Proyectil> lista8; //Generador abajo
 
 //Metodo para mostrar las reglas en pantalla
 void reglas(){
-	putText(img, "Reglas: ", Point(img.cols - 350, img.rows - 570), FONT_HERSHEY_TRIPLEX, 1, Scalar(1, 1, 247), 2, 8);
-	putText(img, "1.-Utiliza las areas en los bordes para mover a tu personaje ", Point(img.cols - 570, img.rows - 500), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
-	putText(img, "2.-Eviata los proyectiles el mayor tiempo posible ", Point(img.cols - 570, img.rows - 450), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
-	putText(img, "3.-Elimina el jefe y gana el juego ", Point(img.cols - 570, img.rows - 400), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
-	putText(img, "Pulsa cualquier tecla para comenzar ", Point(img.cols - 500, img.rows - 200), FONT_HERSHEY_TRIPLEX, 0.7, Scalar(1, 1, 247), 2, 8);
-	imshow("juego", img);
+	putText(cflow, "Reglas: ", Point(cflow.cols - 350, cflow.rows - 430), FONT_HERSHEY_TRIPLEX, 1, Scalar(1, 1, 247), 2, 8);
+	putText(cflow, "1.-Utiliza las areas en los bordes para mover a tu personaje ", Point(cflow.cols - 570, cflow.rows - 370), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
+	putText(cflow, "2.-Eviata los proyectiles el mayor tiempo posible ", Point(cflow.cols - 570, cflow.rows - 330), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
+	putText(cflow, "3.-Elimina el jefe y gana el juego ", Point(cflow.cols - 570, cflow.rows - 290), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
+	putText(cflow, "Pulsa cualquier tecla para comenzar ", Point(cflow.cols - 540, cflow.rows - 200), FONT_HERSHEY_TRIPLEX, 0.7, Scalar(1, 1, 247), 2, 8);
+	imshow("juego", cflow);
 	waitKey(0);
 }
 
@@ -113,18 +115,18 @@ void generaProyectiles(){
 //Comprueba las vidas que tiene el jugador
 void comprobarVidas(){
 	if(vidas==3){
-		corazon.copyTo(img(Rect(0, 0,corazon.cols,corazon.rows)));
-		corazon.copyTo(img(Rect(40, 0,corazon.cols,corazon.rows)));
-		corazon.copyTo(img(Rect(80, 0,corazon.cols,corazon.rows)));
+		corazon.copyTo(cflow(Rect(0, 0,corazon.cols,corazon.rows)));
+		corazon.copyTo(cflow(Rect(40, 0,corazon.cols,corazon.rows)));
+		corazon.copyTo(cflow(Rect(80, 0,corazon.cols,corazon.rows)));
 	}
 
 	if(vidas == 2){
-		corazon.copyTo(img(Rect(0, 0,corazon.cols,corazon.rows)));
-		corazon.copyTo(img(Rect(40, 0,corazon.cols,corazon.rows)));
+		corazon.copyTo(cflow(Rect(0, 0,corazon.cols,corazon.rows)));
+		corazon.copyTo(cflow(Rect(40, 0,corazon.cols,corazon.rows)));
 	}
 
 	if(vidas == 1){
-		corazon.copyTo(img(Rect(0, 0,corazon.cols,corazon.rows)));
+		corazon.copyTo(cflow(Rect(0, 0,corazon.cols,corazon.rows)));
 	}
 
 	if(vidas == 0){
@@ -135,7 +137,7 @@ void comprobarVidas(){
 //Muestra la puntuacion al jugador
 void muestraScore(){
 	scoreText = to_string(score);
-	putText(img, "Puntuacion: " + scoreText , Point(img.cols - 200, img.rows - 570), FONT_HERSHEY_TRIPLEX, 0.6, Scalar(1, 1, 247), 2, 8);
+	putText(cflow, "Puntuacion: " + scoreText , Point(cflow.cols - 200, cflow.rows - 430), FONT_HERSHEY_TRIPLEX, 0.6, Scalar(1, 1, 247), 2, 8);
 }
 
 //Eliminar Proyectiles cuando tocan los bordes del frame
@@ -218,40 +220,94 @@ void mostrarProyectiles(){
 }
 
 void finalJuego(){
+	cflow = Scalar(0,0,0);
 	scoreText = to_string(score);
-	putText(img, "Tu puntuacion final es de: ", Point(img.cols - 500, img.rows - 400), FONT_HERSHEY_TRIPLEX, 0.7, Scalar(1, 1, 247), 2, 8);
-	putText(img, scoreText, Point(img.cols - 300, img.rows - 350), FONT_HERSHEY_TRIPLEX, 0.7, Scalar(1, 1, 247), 1, 8);
-	imshow("juego", img);
+	putText(cflow, "Tu puntuacion final es de: ", Point(cflow.cols - 500, cflow.rows - 400), FONT_HERSHEY_TRIPLEX, 0.7, Scalar(1, 1, 247), 2, 8);
+	putText(cflow, scoreText, Point(cflow.cols - 350, cflow.rows - 350), FONT_HERSHEY_TRIPLEX, 0.7, Scalar(1, 1, 247), 1, 8);
+	imshow("juego", cflow);
 	waitKey(0);
+}
+
+static void drawOptFlowMap(const Mat& flow, int step, double, const Scalar& color){
+  // for(int y = 100; y < 400; y += step)
+  //   for(int x = 100; x < 400; x += step){
+	// 		const Point2f& fxy = flow.at<Point2f>(y, x);
+	// 		// line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), color);
+	// 		//circle(cflowmap, Point(x,y), 2, color, -1);
+	//
+	// 		circle(cflow, Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), 2, color, -1);
+	// 		line(cflow, Point(x,y - step), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)),color);
+	// 		line(cflow, Point(x - step,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)),color);
+	const Point2f& fxy = flow.at<Point2f>(ycirculo, xcirculo);
+	circle(cflow, Point(cvRound(xcirculo+fxy.x),cvRound(ycirculo+fxy.y)), 30, color, -1);
+	cout << fxy << endl;
+
+	if(fxy.x < -2){
+		xcirculo = xcirculo - step;
+	}
+
+	if(fxy.x > 3){
+		xcirculo = xcirculo + step;
+	}
+
+	if(fxy.y < -2){
+		ycirculo = ycirculo - step;
+	}
+
+	if(fxy.y > 3){
+		ycirculo = ycirculo + step;
+	}
+
 }
 
 int main(int, char**){
 	srand(time(NULL));
-
-  img = Mat(480, 640, CV_8UC3, Scalar(0, 0, 0));
+	Mat flow, frame;
+	Mat gray, prevgray, uflow;
+  cflow = Mat(480, 640, CV_8UC3, Scalar(0, 0, 0));
 	corazon = imread("heart.png");
 
-	reglas(); //Muestra Reglas
 
+	VideoCapture cap(0);
+	//help();
+	if(!cap.isOpened()){
+		return -1;
+	}
+
+	namedWindow("juego", 1);
 	generaProyectiles(); //Genera Proyectiles
+	reglas(); //Muestra Reglas
 
 //Ciclo del Frame
 	for(;;){
 
-		comprobarVidas(); //Muestra la cantidad de vidas
+		cap >> frame;
+		cvtColor(frame, gray, COLOR_BGR2GRAY);
+		flip(gray, gray, 1);
 
-		muestraScore(); //Muestra la puntuacion
+		if( !prevgray.empty() )
+{
+				calcOpticalFlowFarneback(prevgray, gray, uflow, 0.5, 3, 15, 3, 5, 1.2, 0);
+				cvtColor(prevgray, cflow, COLOR_GRAY2BGR);
+				uflow.copyTo(flow);
+				// flip(cflow, cflow, 1);
+				drawOptFlowMap(flow, 10, 1.5, Scalar(0, 255, 0));
+				comprobarVidas(); //Muestra la cantidad de vidas
 
-		mostrarProyectiles(); //Hace avanzar proyectiles
+				muestraScore(); //Muestra la puntuacion
 
-		eliminarProyectiles(); //Elimina proyectiles cuando toquen los bordes del frame
+				mostrarProyectiles(); //Hace avanzar proyectiles
 
-		// delete p1;
-		imshow("juego", img);
-		img = Scalar(0, 0, 0);
-		if(waitKey(30) >= 0){
-      break;
-    }
+				eliminarProyectiles(); //Elimina proyectiles cuando toquen los bordes del frame
+				imshow("juego", cflow);
+}
+		if(waitKey(10)>=0){
+			break;
+		}
+		std::swap(prevgray, gray);
+
+
+
 		score++;
 	}
 
