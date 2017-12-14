@@ -18,9 +18,19 @@ Mat corazon;
 Mat cflow;
 int vidas = 3;
 int score = 0;
+int tiempo;
+bool inven = false;
 string scoreText;
 float ycirculo = 200;
-float xcirculo = 200;
+float xcirculo = 300;
+
+Mat rotate(Mat img, float angle){
+	Mat rot;
+	Point2f pt(img.cols/2., img.rows/2.);
+	Mat r = getRotationMatrix2D(pt, angle, 1.0);
+	warpAffine(img, rot, r, Size(img.cols, img.rows));
+	return rot;
+}
 
 class Proyectil{
 public:
@@ -34,6 +44,15 @@ public:
 	void avanzar();
 };
 
+class Power{
+public:
+	int x, y;
+	float t = 0.1;
+	Power(int, int);
+	void mostrar();
+};
+
+//Metodos del objeto Proyectil
 Proyectil::Proyectil(int _x, int _y){
 	size = 1;
 	x = _x;
@@ -70,6 +89,21 @@ void Proyectil::avanzar(){
 	size = size + 0.08;
 }
 
+//Metodos del objeto Power
+Power::Power(int _x, int _y){
+	x = _x;
+	y = _y;
+}
+
+void Power::mostrar(){
+	Mat img = imread("power.jpg");
+	Mat rot = rotate(img, t);
+	rot.copyTo(cflow(Rect(x, y,img.cols,img.rows)));
+	t = t + 1;
+	//rectangle(cflow, Point(10 * cos(t) + x, 10 * sin(t) + y), Point(10 * cos(t) + x + size, 10 * sin(t) + y + size), Scalar(29, 205, 224), -1, 8);
+	//t = t + 1;
+}
+
 //Declaracion de Listas
 list<Proyectil> lista1; //Generador arriba
 list<Proyectil> lista2; //Generador arriba
@@ -79,13 +113,15 @@ list<Proyectil> lista5; //Generador derecha
 list<Proyectil> lista6; //Generador derecha
 list<Proyectil> lista7; //Generador abajo
 list<Proyectil> lista8; //Generador abajo
+list<Power> listPower; //Generador de Power-Ups
+
 
 //Metodo para mostrar las reglas en pantalla
 void reglas(){
 	putText(cflow, "Reglas: ", Point(cflow.cols - 350, cflow.rows - 430), FONT_HERSHEY_TRIPLEX, 1, Scalar(1, 1, 247), 2, 8);
-	putText(cflow, "1.-Utiliza las areas en los bordes para mover a tu personaje ", Point(cflow.cols - 570, cflow.rows - 370), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
+	putText(cflow, "1.-Pon tu mano sobre el ciculo rojo y muevelo ", Point(cflow.cols - 570, cflow.rows - 370), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
 	putText(cflow, "2.-Eviata los proyectiles el mayor tiempo posible ", Point(cflow.cols - 570, cflow.rows - 330), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
-	putText(cflow, "3.-Elimina el jefe y gana el juego ", Point(cflow.cols - 570, cflow.rows - 290), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
+	putText(cflow, "3.-Adquiere invencivilidad con los cuadros amarillos ", Point(cflow.cols - 570, cflow.rows - 290), FONT_HERSHEY_TRIPLEX, 0.5, Scalar(1, 1, 247), 1, 8);
 	putText(cflow, "Pulsa cualquier tecla para comenzar ", Point(cflow.cols - 540, cflow.rows - 200), FONT_HERSHEY_TRIPLEX, 0.7, Scalar(1, 1, 247), 2, 8);
 	imshow("juego", cflow);
 	waitKey(0);
@@ -114,7 +150,7 @@ void generaProyectiles(){
 
 //Comprueba las vidas que tiene el jugador
 void comprobarVidas(){
-	if(vidas==3){
+	if(vidas == 3){
 		corazon.copyTo(cflow(Rect(0, 0,corazon.cols,corazon.rows)));
 		corazon.copyTo(cflow(Rect(40, 0,corazon.cols,corazon.rows)));
 		corazon.copyTo(cflow(Rect(80, 0,corazon.cols,corazon.rows)));
@@ -127,10 +163,6 @@ void comprobarVidas(){
 
 	if(vidas == 1){
 		corazon.copyTo(cflow(Rect(0, 0,corazon.cols,corazon.rows)));
-	}
-
-	if(vidas == 0){
-		//TODO
 	}
 }
 
@@ -219,6 +251,23 @@ void mostrarProyectiles(){
 
 }
 
+//Muestra en pantalla los power ups
+void mostrarPower(){
+	if(score == 200 || score == 500 || score == 800 || score == 1200){
+		listPower.push_back(*new Power(rand() % 590, rand() % 430));
+	}
+	if((score >= 200  && score <= 350) || (score >= 500  && score <= 650) || (score >= 800 && score <= 950) || (score >= 1200  && score <= 1400)){
+		if(listPower.size() > 0){
+			listPower.back().mostrar();
+		}
+	}
+	else{
+		if(listPower.size() > 0){
+			listPower.pop_back();
+		}
+	}
+}
+
 void finalJuego(){
 	cflow = Scalar(0,0,0);
 	scoreText = to_string(score);
@@ -228,19 +277,11 @@ void finalJuego(){
 	waitKey(0);
 }
 
+
 static void drawOptFlowMap(const Mat& flow, int step, double, const Scalar& color){
-  // for(int y = 100; y < 400; y += step)
-  //   for(int x = 100; x < 400; x += step){
-	// 		const Point2f& fxy = flow.at<Point2f>(y, x);
-	// 		// line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), color);
-	// 		//circle(cflowmap, Point(x,y), 2, color, -1);
-	//
-	// 		circle(cflow, Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), 2, color, -1);
-	// 		line(cflow, Point(x,y - step), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)),color);
-	// 		line(cflow, Point(x - step,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)),color);
 	const Point2f& fxy = flow.at<Point2f>(ycirculo, xcirculo);
-	circle(cflow, Point(cvRound(xcirculo+fxy.x),cvRound(ycirculo+fxy.y)), 30, color, -1);
-	cout << fxy << endl;
+	circle(cflow, Point(cvRound(xcirculo+fxy.x),cvRound(ycirculo+fxy.y)), 30, Scalar(19, 19, 237), -1);
+	// cout << fxy << endl;
 
 	if(fxy.x < -2){
 		xcirculo = xcirculo - step;
@@ -258,6 +299,80 @@ static void drawOptFlowMap(const Mat& flow, int step, double, const Scalar& colo
 		ycirculo = ycirculo + step;
 	}
 
+	if(inven == false){
+		if((lista1.back().x + lista1.back().size > xcirculo - 30 && lista1.back().x + lista1.back().size < xcirculo + 30)  && (lista1.back().y - lista1.back().size < ycirculo + 30 && lista1.back().y - lista1.back().size > ycirculo - 30)){
+			tiempo = score + 20;
+			inven = true;
+			lista1.pop_back();
+			vidas--;
+		}
+
+		if((lista2.back().x + lista2.back().size > xcirculo - 30 && lista2.back().x + lista2.back().size < xcirculo + 30)  && (lista2.back().y - lista2.back().size < ycirculo + 30 && lista2.back().y - lista2.back().size > ycirculo - 30)){
+			tiempo = score + 20;
+			inven = true;
+			lista2.pop_back();
+			vidas--;
+		}
+
+		if((lista3.back().x + lista3.back().size > xcirculo - 30 && lista3.back().x + lista3.back().size < xcirculo + 30)  && (lista3.back().y - lista3.back().size < ycirculo + 30 && lista3.back().y - lista3.back().size > ycirculo - 30)){
+			tiempo = score + 20;
+			inven = true;
+			lista3.pop_back();
+			vidas--;
+		}
+
+		if((lista4.back().x + lista4.back().size > xcirculo - 30 && lista4.back().x + lista4.back().size < xcirculo + 30)  && (lista4.back().y - lista4.back().size < ycirculo + 30 && lista4.back().y - lista4.back().size > ycirculo - 30)){
+			tiempo = score + 20;
+			inven = true;
+			lista4.pop_back();
+			vidas--;
+		}
+
+		if((lista5.back().x + lista5.back().size > xcirculo - 30 && lista5.back().x + lista5.back().size < xcirculo + 30)  && (lista5.back().y - lista5.back().size < ycirculo + 30 && lista5.back().y - lista5.back().size > ycirculo - 30)){
+			tiempo = score + 20;
+			inven = true;
+			lista5.pop_back();
+			vidas--;
+		}
+
+		if((lista6.back().x + lista6.back().size > xcirculo - 30 && lista6.back().x + lista6.back().size < xcirculo + 30)  && (lista6.back().y - lista6.back().size < ycirculo + 30 && lista6.back().y - lista6.back().size > ycirculo - 30)){
+			tiempo = score + 20;
+			inven = true;
+			lista6.pop_back();
+			vidas--;
+		}
+
+		if((lista7.back().x + lista7.back().size > xcirculo - 30 && lista7.back().x + lista7.back().size < xcirculo + 30)  && (lista7.back().y - lista7.back().size < ycirculo + 30 && lista7.back().y - lista7.back().size > ycirculo - 30)){
+			tiempo = score + 20;
+			inven = true;
+			lista7.pop_back();
+			vidas--;
+		}
+
+		if((lista8.back().x + lista8.back().size > xcirculo - 30 && lista8.back().x + lista8.back().size < xcirculo + 30)  && (lista8.back().y - lista8.back().size < ycirculo + 30 && lista8.back().y - lista8.back().size > ycirculo - 30)){
+			tiempo = score + 20;
+			inven = true;
+			lista8.pop_back();
+			vidas--;
+		}
+
+		if(listPower.size() > 0){
+			for(int i = 0; i < 50; i++){
+				if((listPower.back().x + i > xcirculo - 30 && listPower.back().x + i < xcirculo + 30) && (listPower.back().y + i < ycirculo + 30 && listPower.back().y + i > ycirculo - 30)){
+					tiempo = score + 120;
+					inven = true;
+					listPower.pop_back();
+				}
+			}
+		}
+	}
+	else{
+		if(score >= tiempo){
+			inven = false;
+		}
+	}
+
+
 }
 
 int main(int, char**){
@@ -266,7 +381,6 @@ int main(int, char**){
 	Mat gray, prevgray, uflow;
   cflow = Mat(480, 640, CV_8UC3, Scalar(0, 0, 0));
 	corazon = imread("heart.png");
-
 
 	VideoCapture cap(0);
 	//help();
@@ -298,10 +412,12 @@ int main(int, char**){
 
 				mostrarProyectiles(); //Hace avanzar proyectiles
 
+				mostrarPower();
+
 				eliminarProyectiles(); //Elimina proyectiles cuando toquen los bordes del frame
 				imshow("juego", cflow);
 }
-		if(waitKey(10)>=0){
+		if( waitKey(10)>=0 ||vidas == 0){
 			break;
 		}
 		std::swap(prevgray, gray);
